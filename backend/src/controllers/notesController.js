@@ -1,15 +1,15 @@
-export function getAllNotes(req,res){
+export async function getAllNotes(req,res){
   res.status(200).json({message:"you just fetched notes"});
 }
 
-export function createNote(req,res){
+export async function createNote(req,res){
   res.status(201).json({message:"note created successfully"});
 }
 
-export function updateNote(req,res){
+export async function updateNote(req,res){
   res.status(200).json({message:"note updated successfully"});
 }
 
-export function deleteNote(req,res){
+export async function deleteNote(req,res){
   res.status(200).json({message:"note deleted successfully"});
 }
