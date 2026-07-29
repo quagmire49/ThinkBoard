@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import router from "./routes/notesRoutes.js";
 import connectDB from "./config/db.js";
@@ -11,7 +12,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const __dirname = path.resolve();
+
+// Correctly resolve __dirname in ES modules (points to the folder
+// containing this file, i.e. backend/, regardless of the process's cwd)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // CORS only during development
 if (process.env.NODE_ENV !== "production") {
@@ -31,14 +36,14 @@ app.use("/api/notes", router);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  app.use(
-    express.static(path.join(__dirname, "frontend", "dist"))
-  );
+  // frontend and backend are sibling folders at repo root,
+  // so go up one level from backend/ to reach frontend/dist
+path.join(__dirname, "..", "..", "frontend", "dist")
+
+  app.use(express.static(frontendDistPath));
 
   app.get("/{*splat}", (req, res) => {
-    res.sendFile(
-      path.join(__dirname, "frontend", "dist", "index.html")
-    );
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
 
