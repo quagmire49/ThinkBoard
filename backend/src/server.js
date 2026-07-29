@@ -35,10 +35,9 @@ app.use(rateLimiter);
 app.use("/api/notes", router);
 
 // Serve frontend in production
+// Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  // frontend and backend are sibling folders at repo root,
-  // so go up one level from backend/ to reach frontend/dist
-path.join(__dirname, "..", "..", "frontend", "dist")
+  const frontendDistPath = path.join(__dirname, "..", "..", "frontend", "dist");
 
   app.use(express.static(frontendDistPath));
 
@@ -46,7 +45,6 @@ path.join(__dirname, "..", "..", "frontend", "dist")
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
-
 // Connect to MongoDB first, then start server
 connectDB()
   .then(() => {
