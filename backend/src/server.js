@@ -1,26 +1,55 @@
-import express from "express"
-import cors from "cors"
-import dotenv from "dotenv"
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
 
 import router from "./routes/notesRoutes.js";
 import connectDB from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 
-
 dotenv.config();
 
-const app=express();
-const PORT=process.env.PORT || 8000
+const app = express();
+const PORT = process.env.PORT || 8000;
+const __dirname = path.resolve();
 
-app.use(cors({
-  orgin:"http://localhost:5173",
-}))
-app.use(express.json())
-app.use(rateLimiter)
-app.use("/api/notes",router);
+// CORS only during development
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+    })
+  );
+}
 
-connectDB().then(()=>{
-app.listen(PORT,()=>{
-  console.log(`Server started and running on port ${PORT}`);
-});
-})
+// Middleware
+app.use(express.json());
+app.use(rateLimiter);
+
+// API routes
+app.use("/api/notes", router);
+
+// Serve frontend in production
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    express.static(path.join(__dirname, "../frontend/dist"))
+  );
+
+  // Express 5 catch-all route
+  app.get("/{*splat}", (req, res) => {
+    res.sendFile(
+      path.join(__dirname, "../frontend", "dist", "index.html")
+    );
+  });
+}
+
+// Connect to MongoDB first, then start server
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server started and running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to MongoDB:", error);
+  });
