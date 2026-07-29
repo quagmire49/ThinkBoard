@@ -32,13 +32,12 @@ app.use("/api/notes", router);
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {
   app.use(
-    express.static(path.join(__dirname, "../frontend/dist"))
+    express.static(path.join(__dirname, "frontend", "dist"))
   );
 
-  // Express 5 catch-all route
   app.get("/{*splat}", (req, res) => {
     res.sendFile(
-      path.join(__dirname, "../frontend", "dist", "index.html")
+      path.join(__dirname, "frontend", "dist", "index.html")
     );
   });
 }
